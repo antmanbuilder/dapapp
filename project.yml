@@ -1,0 +1,52 @@
+# Generate the Xcode project on a Mac: `brew install xcodegen && xcodegen generate`
+name: DapApp
+options:
+  bundleIdPrefix: com.yourcompany.dapapp
+  deploymentTarget:
+    iOS: "16.0"
+    watchOS: "9.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    DEVELOPMENT_TEAM: ""
+
+targets:
+  DapApp:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: DapApp
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.yourcompany.dapapp.DapApp
+        INFOPLIST_FILE: DapApp/Info.plist
+        TARGETED_DEVICE_FAMILY: "1"
+        ENABLE_PREVIEWS: YES
+    dependencies:
+      - target: DapWatch Watch App
+        embed: true
+
+  DapWatch Watch App:
+    type: application
+    platform: watchOS
+    deploymentTarget: "9.0"
+    sources:
+      - path: DapWatch
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.yourcompany.dapapp.DapApp.watchkitapp
+        INFOPLIST_FILE: DapWatch/Info.plist
+
+schemes:
+  DapApp:
+    build:
+      targets:
+        DapApp: all
+        DapWatch Watch App: all
+    run:
+      config: Debug
