@@ -1,5 +1,8 @@
 import AVFoundation
 
+// NOTE: Add tier4.caf, tier5.caf, tier6.caf to DapApp/Sounds/ for reveal sounds.
+// Without these files the app works fine — it just skips the audio flourish.
+
 /// Short tier reveal sounds (optional — bundle `Sounds/*.caf` or `*.m4a` when added).
 final class TierSoundService {
     private var player: AVAudioPlayer?

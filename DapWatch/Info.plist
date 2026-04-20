@@ -21,7 +21,7 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Dap App needs your mic to measure your dap</string>
 	<key>WKCompanionAppBundleIdentifier</key>
-	<string>com.yourcompany.dapapp.DapApp</string>
+	<string>com.antmanbuilder.dapapp.DapApp</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

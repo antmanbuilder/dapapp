@@ -66,6 +66,7 @@ struct ContentView: View {
 
     @MainActor
     private func startFlow() async {
+        guard phase == .idle else { return }
         guard await audio.requestPermission() else {
             micDenied = true
             return

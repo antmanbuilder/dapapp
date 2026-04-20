@@ -15,7 +15,7 @@ enum Constants {
 
     // MARK: - IAP
 
-    static let removeAdsProductID = "com.dapapp.removeads"
+    static let removeAdsProductID = "com.antmanbuilder.dapapp.removeads"
 
     // MARK: - App Store (QR on share card)
 

@@ -24,6 +24,7 @@ final class DapFlowViewModel: ObservableObject {
     }
 
     func startDapFlow() {
+        guard phase == .idle else { return }
         microphoneDenied = false
         errorMessage = nil
         Task { await runFlow() }

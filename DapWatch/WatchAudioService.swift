@@ -8,8 +8,12 @@ final class WatchAudioService: NSObject, ObservableObject {
     private var recorder: AVAudioRecorder?
 
     func requestPermission() async -> Bool {
-        await withCheckedContinuation { continuation in
-            AVAudioSession.sharedInstance().requestRecordPermission { continuation.resume(returning: $0) }
+        if #available(watchOS 10.0, *) {
+            return await AVAudioApplication.requestRecordPermission()
+        } else {
+            return await withCheckedContinuation { continuation in
+                AVAudioSession.sharedInstance().requestRecordPermission { continuation.resume(returning: $0) }
+            }
         }
     }
 

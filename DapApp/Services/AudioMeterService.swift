@@ -25,9 +25,13 @@ final class AudioMeterService: NSObject, ObservableObject {
     private let lock = NSLock()
 
     func requestPermission() async -> Bool {
-        await withCheckedContinuation { continuation in
-            AVAudioSession.sharedInstance().requestRecordPermission { granted in
-                continuation.resume(returning: granted)
+        if #available(iOS 17.0, *) {
+            return await AVAudioApplication.requestRecordPermission()
+        } else {
+            return await withCheckedContinuation { continuation in
+                AVAudioSession.sharedInstance().requestRecordPermission { granted in
+                    continuation.resume(returning: granted)
+                }
             }
         }
     }
@@ -69,16 +73,18 @@ final class AudioMeterService: NSObject, ObservableObject {
             }
         }
 
+        defer {
+            engine.stop()
+            input.removeTap(onBus: 0)
+            try? session.setActive(false, options: [])
+        }
+
         try engine.start()
 
         let start = Date()
         while Date().timeIntervalSince(start) < duration {
             try await Task.sleep(nanoseconds: UInt64(MeasurementConstants.meteringInterval * 1_000_000_000))
         }
-
-        engine.stop()
-        input.removeTap(onBus: 0)
-        try? session.setActive(false, options: [])
 
         let peak = currentPeakLinear()
         return peak.displayDecibelsFromLinearPeak()

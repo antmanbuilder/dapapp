@@ -1,7 +1,7 @@
 # Generate the Xcode project on a Mac: `brew install xcodegen && xcodegen generate`
 name: DapApp
 options:
-  bundleIdPrefix: com.yourcompany.dapapp
+  bundleIdPrefix: com.antmanbuilder.dapapp
   deploymentTarget:
     iOS: "16.0"
     watchOS: "9.0"
@@ -10,7 +10,7 @@ options:
 settings:
   base:
     SWIFT_VERSION: "5.9"
-    DEVELOPMENT_TEAM: ""
+    DEVELOPMENT_TEAM: "" # TODO: paste your 10-char Apple Developer Team ID here
 
 targets:
   DapApp:
@@ -22,7 +22,7 @@ targets:
       - path: Shared
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.yourcompany.dapapp.DapApp
+        PRODUCT_BUNDLE_IDENTIFIER: com.antmanbuilder.dapapp.DapApp
         INFOPLIST_FILE: DapApp/Info.plist
         TARGETED_DEVICE_FAMILY: "1"
         ENABLE_PREVIEWS: YES
@@ -39,7 +39,7 @@ targets:
       - path: Shared
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.yourcompany.dapapp.DapApp.watchkitapp
+        PRODUCT_BUNDLE_IDENTIFIER: com.antmanbuilder.dapapp.DapApp.watchkitapp
         INFOPLIST_FILE: DapWatch/Info.plist
 
 schemes:
