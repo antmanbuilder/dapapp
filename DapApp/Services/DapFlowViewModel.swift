@@ -49,6 +49,7 @@ final class DapFlowViewModel: ObservableObject {
 
         phase = .listening
         audio.resetPeak()
+        sounds.playDrumroll()
         do {
             let peakDb = try await audio.measurePeakDecibels()
             let tier = DapTier.tier(for: peakDb)
@@ -57,6 +58,9 @@ final class DapFlowViewModel: ObservableObject {
             phase = .result(result)
             HapticService.play(for: tier)
             sounds.playReveal(for: tier)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                self?.sounds.playTierMusic(for: tier)
+            }
         } catch {
             errorMessage = error.localizedDescription
             phase = .idle
