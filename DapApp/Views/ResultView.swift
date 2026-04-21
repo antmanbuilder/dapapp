@@ -10,13 +10,10 @@ struct ResultView: View {
 
     var body: some View {
         ZStack {
-            TierAnimationView(tier: result.tier)
-                .blur(radius: result.tier == .didYouEvenTouch ? 8 : 0)
-
             VStack(spacing: 18) {
-                Text(result.tier.emoji)
-                    .font(.system(size: 88))
-                    .scaleEffect(pulse && result.tier == .earthquake ? 1.08 : 1.0)
+                TierGraphicView(tier: result.tier)
+                    .frame(height: 250)
+                    .scaleEffect(pulse && result.tier == .earthquake ? 1.04 : 1.0)
                     .animation(
                         result.tier == .earthquake
                             ? .easeInOut(duration: 0.45).repeatForever(autoreverses: true)
