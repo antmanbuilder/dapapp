@@ -24,6 +24,7 @@ final class DapFlowViewModel: ObservableObject {
     }
 
     func startDapFlow() {
+        sounds.playTap()
         guard phase == .idle else { return }
         microphoneDenied = false
         errorMessage = nil
@@ -39,9 +40,11 @@ final class DapFlowViewModel: ObservableObject {
 
         for n in stride(from: MeasurementConstants.countdownSeconds, through: 1, by: -1) {
             phase = .countdown(n)
+            sounds.playTick()
             try? await Task.sleep(nanoseconds: 1_000_000_000)
         }
         phase = .go
+        sounds.playGo()
         try? await Task.sleep(nanoseconds: 400_000_000)
 
         phase = .listening
