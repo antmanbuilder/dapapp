@@ -30,13 +30,6 @@ struct ListeningView: View {
             Text("LISTENING…")
                 .font(.system(size: 18, weight: .bold, design: .rounded))
                 .foregroundStyle(Color.white.opacity(0.7))
-
-            #if DEBUG
-            Text("Raw: \(String(format: "%.6f", audio.liveLinearPeak)) | dB: \(String(format: "%.1f", audio.liveLinearPeak.displayDecibelsFromLinearPeak()))")
-                .font(.system(size: 11, design: .monospaced))
-                .foregroundStyle(.yellow.opacity(0.8))
-                .padding(.top, 4)
-            #endif
         }
     }
 }

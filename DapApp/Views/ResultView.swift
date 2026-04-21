@@ -8,18 +8,31 @@ struct ResultView: View {
     @State private var shake: CGFloat = 0
     @State private var pulse = false
 
+    @State private var showDB = false
+    @State private var showTitle = false
+    @State private var showGraphic = false
+    @State private var showButtons = false
+
     var body: some View {
         ZStack {
             VStack(spacing: 18) {
-                TierGraphicView(tier: result.tier)
-                    .frame(height: 250)
-                    .scaleEffect(pulse && result.tier == .earthquake ? 1.04 : 1.0)
-                    .animation(
-                        result.tier == .earthquake
-                            ? .easeInOut(duration: 0.45).repeatForever(autoreverses: true)
-                            : .default,
-                        value: pulse
-                    )
+                ZStack {
+                    Color.clear.frame(height: 250)
+                    if showGraphic {
+                        TierGraphicView(tier: result.tier)
+                            .frame(height: 250)
+                            .scaleEffect(pulse && result.tier == .earthquake ? 1.04 : 1.0)
+                            .animation(
+                                result.tier == .earthquake
+                                    ? .easeInOut(duration: 0.45).repeatForever(autoreverses: true)
+                                    : .default,
+                                value: pulse
+                            )
+                            .transition(
+                                .scale(scale: 0.5).combined(with: .opacity)
+                            )
+                    }
+                }
 
                 Text(result.tier.displayTitle)
                     .font(AppFont.display(size: 28))
@@ -27,10 +40,13 @@ struct ResultView: View {
                     .foregroundStyle(.white)
                     .shadow(color: .black.opacity(0.35), radius: 4, y: 2)
                     .offset(x: shakeOffset())
+                    .opacity(showTitle ? 1 : 0)
 
                 Text(String(format: "%.1f dB", result.peakDecibels))
                     .font(AppFont.display(size: 24))
                     .foregroundStyle(Color.white.opacity(0.75))
+                    .opacity(showDB ? 1 : 0)
+                    .offset(y: showDB ? 0 : 36)
 
                 HStack(spacing: 16) {
                     Button(action: onShare) {
@@ -55,12 +71,38 @@ struct ResultView: View {
                     .buttonStyle(.plain)
                 }
                 .padding(.top, 12)
+                .opacity(showButtons ? 1 : 0)
+                .offset(y: showButtons ? 0 : 44)
             }
             .padding(.horizontal, 24)
         }
         .onAppear {
-            pulse = true
-            runShakeIfNeeded()
+            // Phase 1: dB number slams in (0.3s)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.5)) {
+                    showDB = true
+                }
+            }
+            // Phase 2: Tier title (0.8s)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                withAnimation(.easeOut(duration: 0.4)) {
+                    showTitle = true
+                }
+            }
+            // Phase 3: Tier graphic (1.2s) — kick off pulse + shake here too
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.4)) {
+                    showGraphic = true
+                }
+                pulse = true
+                runShakeIfNeeded()
+            }
+            // Phase 4: Buttons (2.0s)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                withAnimation(.easeOut(duration: 0.3)) {
+                    showButtons = true
+                }
+            }
         }
     }
 

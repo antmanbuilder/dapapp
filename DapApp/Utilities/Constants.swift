@@ -19,7 +19,7 @@ enum Constants {
 
     // MARK: - App Store (QR on share card)
 
-    static let appStoreURLString = "https://apps.apple.com/app/id0000000000"
+    static let appStoreURLString = "https://apps.apple.com/app/dap-app/id0000000000"
 
     // MARK: - History
 

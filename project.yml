@@ -12,6 +12,11 @@ settings:
     SWIFT_VERSION: "5.9"
     DEVELOPMENT_TEAM: "" # TODO: paste your 10-char Apple Developer Team ID here
 
+packages:
+  Supabase:
+    url: https://github.com/supabase/supabase-swift
+    from: "2.0.0"
+
 targets:
   DapApp:
     type: application
@@ -30,9 +35,13 @@ targets:
         INFOPLIST_FILE: DapApp/Info.plist
         TARGETED_DEVICE_FAMILY: "1"
         ENABLE_PREVIEWS: YES
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
     dependencies:
       - target: DapWatch Watch App
         embed: true
+      - package: Supabase
+        product: Supabase
 
   DapWatch Watch App:
     type: application
@@ -45,6 +54,8 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.antmanbuilder.dapapp.DapApp.watchkitapp
         INFOPLIST_FILE: DapWatch/Info.plist
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
 
 schemes:
   DapApp:
