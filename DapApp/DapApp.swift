@@ -14,7 +14,7 @@ struct DapApp: App {
 }
 
 /// Single place to wire `DapHistoryStore` into `DapFlowViewModel` so stats and ads flags stay consistent.
-final class AppRootModel: ObservableObject {
+@MainActor final class AppRootModel: ObservableObject {
     let history: DapHistoryStore
     let flow: DapFlowViewModel
 

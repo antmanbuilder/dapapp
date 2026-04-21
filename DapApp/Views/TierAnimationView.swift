@@ -28,6 +28,7 @@ struct TierAnimationView: View {
     }
 
     private func drawDim(context: GraphicsContext, size: CGSize, t: TimeInterval) {
+        var context = context
         let wobble = sin(t * 4) * 6
         context.opacity = 0.35 + sin(t * 2) * 0.05
         context.fill(

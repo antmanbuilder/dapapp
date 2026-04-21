@@ -16,7 +16,7 @@ struct ShareCardView: View {
 
             VStack(spacing: 0) {
                 Text("DAP APP")
-                    .font(.system(size: 36, weight: .heavy, design: .rounded))
+                    .font(AppFont.display(size: 40))
                     .foregroundStyle(.white.opacity(0.95))
                     .padding(.top, 72)
 
@@ -26,14 +26,14 @@ struct ShareCardView: View {
                     .font(.system(size: 200))
 
                 Text(result.tier.displayTitle)
-                    .font(.system(size: 44, weight: .heavy, design: .rounded))
+                    .font(AppFont.display(size: 48))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.white)
                     .padding(.horizontal, 48)
                     .padding(.top, 32)
 
                 Text(String(format: "%.1f dB", result.peakDecibels))
-                    .font(.system(size: 52, weight: .semibold, design: .monospaced))
+                    .font(AppFont.display(size: 56))
                     .foregroundStyle(.white.opacity(0.9))
                     .padding(.top, 20)
 

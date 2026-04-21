@@ -8,7 +8,8 @@ struct DapButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.system(size: 28, weight: .heavy, design: .rounded))
+                .font(AppFont.display(size: 42))
+                .tracking(2)
                 .foregroundStyle(.black)
                 .frame(width: 220, height: 220)
                 .background(

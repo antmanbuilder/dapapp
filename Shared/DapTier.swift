@@ -36,21 +36,29 @@ public enum DapTier: Int, CaseIterable, Codable {
 
     public var color: Color {
         switch self {
-        case .didYouEvenTouch: return Color(hex: 0x8E8E93)
-        case .weakSauce: return Color(hex: 0xC7A94F)
-        case .respectable: return Color(hex: 0x4A90D9)
-        case .crispy: return Color(hex: 0xFF9500)
-        case .thunderclap: return Color(hex: 0xAF52DE)
-        case .earthquake: return Color(hex: 0xFF3B30)
+        case .didYouEvenTouch: return Color(hex: 0x3A3A3C)
+        case .weakSauce: return Color(hex: 0x8B7355)
+        case .respectable: return Color(hex: 0x007AFF)
+        case .crispy: return Color(hex: 0xFF6B35)
+        case .thunderclap: return Color(hex: 0x6C5CE7)
+        case .earthquake: return Color(hex: 0xFF2D55)
         }
     }
 
     public var gradientColors: [Color] {
         switch self {
+        case .didYouEvenTouch:
+            return [Color(hex: 0x1C1C1E), Color(hex: 0x2C2C2E)]
+        case .weakSauce:
+            return [Color(hex: 0x8B7355), Color(hex: 0x5C4A32)]
+        case .respectable:
+            return [Color(hex: 0x007AFF), Color(hex: 0x0051D5)]
+        case .crispy:
+            return [Color(hex: 0xFF6B35), Color(hex: 0xFF3B30)]
+        case .thunderclap:
+            return [Color(hex: 0x6C5CE7), Color(hex: 0x3B2EBF)]
         case .earthquake:
-            return [Color(hex: 0xFF3B30), Color(hex: 0xFFD700)]
-        default:
-            return [color, color.opacity(0.75)]
+            return [Color(hex: 0xFF2D55), Color(hex: 0xFFD700)]
         }
     }
 

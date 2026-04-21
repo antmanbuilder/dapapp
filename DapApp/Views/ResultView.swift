@@ -25,14 +25,14 @@ struct ResultView: View {
                     )
 
                 Text(result.tier.displayTitle)
-                    .font(.system(size: 22, weight: .heavy, design: .rounded))
+                    .font(AppFont.display(size: 28))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.white)
                     .shadow(color: .black.opacity(0.35), radius: 4, y: 2)
                     .offset(x: shakeOffset())
 
                 Text(String(format: "%.1f dB", result.peakDecibels))
-                    .font(.system(size: 20, weight: .semibold, design: .monospaced))
+                    .font(AppFont.display(size: 24))
                     .foregroundStyle(Color.white.opacity(0.75))
 
                 HStack(spacing: 16) {

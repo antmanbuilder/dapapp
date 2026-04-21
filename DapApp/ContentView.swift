@@ -100,7 +100,7 @@ struct ContentView: View {
     private var topBar: some View {
         HStack {
             Text("DAP APP")
-                .font(.system(size: 20, weight: .heavy, design: .rounded))
+                .font(AppFont.display(size: 22))
                 .foregroundStyle(.white)
             Spacer()
             if !history.adsRemoved {
@@ -116,7 +116,7 @@ struct ContentView: View {
     private var idleContent: some View {
         VStack(spacing: 28) {
             Text("DAP APP")
-                .font(.system(size: 36, weight: .heavy, design: .rounded))
+                .font(AppFont.display(size: 44))
                 .foregroundStyle(.white)
 
             DapButton(title: "DAP IT") {
