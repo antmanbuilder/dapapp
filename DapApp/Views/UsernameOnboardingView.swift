@@ -45,14 +45,19 @@ struct UsernameOnboardingView: View {
                     .tracking(4)
                     .foregroundStyle(.white)
 
-                VStack(spacing: 8) {
+                VStack(spacing: 6) {
                     Text("Pick a name")
                         .font(.system(size: 22, weight: .bold, design: .rounded))
                         .foregroundStyle(.white.opacity(0.85))
 
+                    Text("This is how friends will find you")
+                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.4))
+
                     Text("16 chars max · letters, numbers, underscores")
                         .font(.system(size: 13, weight: .medium, design: .rounded))
                         .foregroundStyle(.white.opacity(0.5))
+                        .padding(.top, 4)
                 }
 
                 VStack(spacing: 10) {

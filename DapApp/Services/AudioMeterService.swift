@@ -24,6 +24,17 @@ final class AudioMeterService: NSObject, ObservableObject {
     private var peakLinear: Double = 0
     private let lock = NSLock()
 
+    // Attack-detection state. All reads/writes must happen under `lock`
+    // because they're touched from the real-time audio tap thread.
+    private var attackStartTime: Date? = nil
+    private var attackPeakTime: Date? = nil
+    private var attackDetected: Bool = false
+    private var noiseFloor: Double = 0
+
+    /// Linear amplitude above which we declare "the dap has started". Tune
+    /// on-device — 0.05 is ~-26 dBFS, well above ambient room noise.
+    private let attackThreshold: Double = 0.05
+
     func requestPermission() async -> Bool {
         if #available(iOS 17.0, *) {
             return await AVAudioApplication.requestRecordPermission()
@@ -39,10 +50,40 @@ final class AudioMeterService: NSObject, ObservableObject {
     func resetPeak() {
         lock.lock()
         peakLinear = 0
+        attackStartTime = nil
+        attackPeakTime = nil
+        attackDetected = false
+        noiseFloor = 0
         lock.unlock()
         DispatchQueue.main.async {
             self.liveLinearPeak = 0
         }
+    }
+
+    /// Time between first above-threshold sample and the sample at which
+    /// the measured peak was reached, in milliseconds. Falls back to a
+    /// middle-of-the-road 50ms if attack wasn't detected cleanly.
+    func attackDurationMs() -> Double {
+        lock.lock()
+        let start = attackStartTime
+        let peakTime = attackPeakTime
+        lock.unlock()
+        guard let start = start, let peakTime = peakTime else {
+            return 50.0
+        }
+        return max(1.0, peakTime.timeIntervalSince(start) * 1000.0)
+    }
+
+    /// Maps attack duration to a crispness multiplier. Crisper attacks
+    /// boost the effective dB; sloppy builds pull it down, so two daps at
+    /// the same loudness can land in wildly different tiers.
+    func crispnessMultiplier() -> Double {
+        let attackMs = attackDurationMs()
+        if attackMs < 5 { return 1.05 }
+        if attackMs < 15 { return 1.0 }
+        if attackMs < 30 { return 0.85 }
+        if attackMs < 50 { return 0.75 }
+        return 0.65
     }
 
     func currentPeakLinear() -> Double {
@@ -64,12 +105,29 @@ final class AudioMeterService: NSObject, ObservableObject {
 
         input.removeTap(onBus: 0)
         input.installTap(onBus: 0, bufferSize: 2048, format: format) { [weak self] buffer, _ in
+            guard let self = self else { return }
             let linear = buffer.peakLinearAmplitude()
-            self?.lock.lock()
-            self?.peakLinear = max(self?.peakLinear ?? 0, linear)
-            self?.lock.unlock()
+
+            // One lock span covers both peak tracking and attack detection
+            // so the two stay consistent with each other.
+            self.lock.lock()
+            // Mark the start of the dap the first time we punch above the
+            // noise floor. Everything before this is ambient room hum.
+            if linear > self.attackThreshold && !self.attackDetected {
+                self.attackStartTime = Date()
+                self.attackDetected = true
+            }
+            // Every time we observe a new maximum, restamp the peak time.
+            // The final value is the timestamp of the loudest sample we
+            // ever saw — the true peak of the attack envelope.
+            if self.attackDetected && linear > self.peakLinear {
+                self.attackPeakTime = Date()
+            }
+            self.peakLinear = max(self.peakLinear, linear)
+            self.lock.unlock()
+
             DispatchQueue.main.async {
-                self?.liveLinearPeak = max(self?.liveLinearPeak ?? 0, linear)
+                self.liveLinearPeak = max(self.liveLinearPeak, linear)
             }
         }
 

@@ -12,6 +12,9 @@ final class DapHistoryStore: ObservableObject {
     private let longestStreakKey = "longestStreak"
     private let userIdKey = "userId"
     private let usernameKey = "username"
+    private let dailyDapCountKey = "dailyDapCount"
+    private let dailyDapDateKey = "dailyDapDate"
+    private let profileImageKey = "profileImageData"
 
     @Published private(set) var dapHistory: [DapResult] = []
     @Published private(set) var totalDaps: Int = 0
@@ -21,6 +24,22 @@ final class DapHistoryStore: ObservableObject {
     @Published private(set) var longestStreak: Int = 0
     @Published private(set) var userId: UUID?
     @Published private(set) var username: String?
+    @Published private(set) var dailyDapsUsed: Int = 0
+    @Published var profileImageData: Data? = nil
+
+    /// Free tier daily cap — premium users bypass this entirely via `canDap`.
+    let dailyDapLimit: Int = 3
+
+    /// Premium users (or free users under the daily cap) can start a dap.
+    var canDap: Bool {
+        adsRemoved || dailyDapsUsed < dailyDapLimit
+    }
+
+    /// Remaining free daps for the day (premium users get Int.max effectively,
+    /// but callers should gate on `canDap` instead of reading this value).
+    var dapsRemaining: Int {
+        max(0, dailyDapLimit - dailyDapsUsed)
+    }
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -45,7 +64,34 @@ final class DapHistoryStore: ObservableObject {
             userId = uuid
         }
         username = defaults.string(forKey: usernameKey)
+        profileImageData = defaults.data(forKey: profileImageKey)
+
+        // Daily dap count — reset at midnight local time so free users get
+        // a fresh quota every day. Stored as a yyyy-MM-dd string so the
+        // reset boundary is explicit and timezone-stable enough for this use.
+        let savedDate = defaults.string(forKey: dailyDapDateKey) ?? ""
+        let today = DateFormatter.yyyyMMdd.string(from: Date())
+        if savedDate == today {
+            dailyDapsUsed = defaults.integer(forKey: dailyDapCountKey)
+        } else {
+            dailyDapsUsed = 0
+            defaults.set(0, forKey: dailyDapCountKey)
+            defaults.set(today, forKey: dailyDapDateKey)
+        }
+
         checkStreakOnLaunch()
+    }
+
+    /// Save (or clear) the user's profile image. Data is persisted as JPEG
+    /// bytes in UserDefaults — caller is responsible for resizing before
+    /// handing it over so we don't bloat user defaults with full-res shots.
+    func setProfileImage(_ data: Data?) {
+        profileImageData = data
+        if let data = data {
+            defaults.set(data, forKey: profileImageKey)
+        } else {
+            defaults.removeObject(forKey: profileImageKey)
+        }
     }
 
     /// Persist the identity produced by the onboarding flow.
@@ -122,6 +168,13 @@ final class DapHistoryStore: ObservableObject {
             }
         }
 
+        // Increment the daily counter so the 3-per-day limit is enforced
+        // on the next `canDap` check. We also restamp the date in case the
+        // user was mid-session when the day rolled over.
+        dailyDapsUsed += 1
+        defaults.set(dailyDapsUsed, forKey: dailyDapCountKey)
+        defaults.set(DateFormatter.yyyyMMdd.string(from: Date()), forKey: dailyDapDateKey)
+
         updateStreak()
         pushScoreToLeaderboard()
     }
@@ -148,4 +201,15 @@ final class DapHistoryStore: ObservableObject {
         adsRemoved = value
         defaults.set(value, forKey: adsRemovedKey)
     }
+}
+
+private extension DateFormatter {
+    /// Local-calendar day key used for the daily dap cap. We intentionally
+    /// stick to the device's local timezone — users count "today" by their
+    /// wall clock, not UTC.
+    static let yyyyMMdd: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        return f
+    }()
 }

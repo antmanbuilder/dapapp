@@ -24,6 +24,8 @@
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Dap App needs your mic to measure your dap</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Dap App needs camera access to take a profile photo</string>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIColorName</key>

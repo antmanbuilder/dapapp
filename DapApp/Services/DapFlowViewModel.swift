@@ -1,5 +1,8 @@
 import Foundation
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 enum DapPhase: Equatable {
     case idle
@@ -25,7 +28,18 @@ final class DapFlowViewModel: ObservableObject {
 
     func startDapFlow() {
         sounds.playTap()
+        // Subtle tactile "click" so the button feels alive alongside the
+        // tap sound — fires even if the actual flow is gated below so the
+        // press always registers physically.
+        #if canImport(UIKit)
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        #endif
         guard phase == .idle else { return }
+        // Free users get 3 daps/day. Premium users bypass this entirely.
+        guard history.canDap else {
+            errorMessage = "You're out of daps for today! Go Premium for unlimited."
+            return
+        }
         microphoneDenied = false
         errorMessage = nil
         Task { await runFlow() }
@@ -51,7 +65,12 @@ final class DapFlowViewModel: ObservableObject {
         audio.resetPeak()
         sounds.playDrumroll()
         do {
-            let peakDb = try await audio.measurePeakDecibels()
+            let rawDb = try await audio.measurePeakDecibels()
+            // Crispness-weighted scoring — a razor-sharp dap is rewarded,
+            // a sloppy one is punished at the same raw loudness. Closes
+            // the tier ceiling and creates an actual skill gradient.
+            let crispness = audio.crispnessMultiplier()
+            let peakDb = rawDb * crispness
             let tier = DapTier.tier(for: peakDb)
             let result = DapResult(peakDecibels: peakDb, tier: tier)
             history.record(result)

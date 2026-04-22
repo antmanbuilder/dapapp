@@ -14,11 +14,14 @@ enum MeasurementConstants {
     static let dbDisplayOffset: Double = 110.0
     static let minimumLinearPeak: Double = 1e-7
 
-    // WIDER tier spread — makes progression feel earned
-    static let tier1Max: Double = 40.0   // "Did you even touch?"
-    static let tier2Max: Double = 55.0   // "Weak sauce"
-    static let tier3Max: Double = 70.0   // "Respectable"
-    static let tier4Max: Double = 85.0   // "That boy CRISPY"
-    static let tier5Max: Double = 100.0  // "Certified Thunderclap"
-    // 100+ = "Registered as an earthquake" — should be rare
+    // Thresholds are calibrated against CRISPNESS-weighted dB
+    // (`rawDb * crispnessMultiplier`), not raw SPL. Raw claps land 80-115,
+    // crispness is 0.65-1.05, so effective scores span ~52-120.
+    // Reaching Tier 6 now requires the dap be BOTH loud AND crispy.
+    static let tier1Max: Double = 55.0   // "Did you even touch?" — barely registered
+    static let tier2Max: Double = 65.0   // "Weak sauce" — sloppy or very quiet
+    static let tier3Max: Double = 75.0   // "Respectable" — decent dap
+    static let tier4Max: Double = 85.0   // "That boy CRISPY" — clean and solid
+    static let tier5Max: Double = 98.0   // "Certified Thunderclap" — impressive
+    // 98+ = "Registered as an earthquake" — loud AND crispy, rare by design
 }
